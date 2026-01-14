@@ -1,0 +1,20 @@
+bool object::reachZ(int Enemy){
+
+
+	if(this.position.z>radar(Enemy).position.z+1||this.position.z<radar(Enemy).position.z-1){
+
+
+		if(this.position.z<radar(Enemy).position.z){
+			jet(0.4);
+			wait(0.1);
+		}else{
+			jet(-0.3);
+			wait(0.1);
+		}
+		message("our z = " + this.position.z + "   enemy z = " + radar(Enemy).position.z);
+		//droneSeekTarget(radar(Enemy)); // we move closser, to the max range of the gun, 40 meters
+		return false;
+	}else{ return true;}
+
+}
+extern void DroneUtil(){}// just so that i  can see the library name

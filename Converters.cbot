@@ -1,0 +1,11 @@
+string BoolToString(bool value){
+	if(value == true)return "true";
+	else if(value == false) return "false";
+	else return "unexpected";
+}
+string PointToString(point target){
+
+	string final= "x="+target.x+" y="+target.y+" y="+target.z;
+	return final;
+}
+extern void Converters(){}// just so that i  can see the library name

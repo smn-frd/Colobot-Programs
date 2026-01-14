@@ -1,0 +1,10 @@
+ bool isInAir(object target)
+{
+
+	if(target.altitude>0)return true;
+	else return false;
+}
+void turnTo(int Enemy){
+	turn(direction(radar(Enemy).position));
+}
+extern void ObjUtil(){}// just so that i  can see the library name
