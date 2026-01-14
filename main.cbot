@@ -1,0 +1,272 @@
+bool  object::isFloating(){ 
+	if(this.altitude>0)return true;
+	else return false;
+	
+}
+
+float object::aimTargetY(object target){
+	
+	float difL = distance(this.position,target.position); // using pitagora, we have cateto maggiore(or maggiore) that is the distance
+	float difH; // we gonna use the difference of height ase the cateto minore(or maggiore)
+	if(this.position.z>target.position.z){
+		difH = this.position.z-target.position.z; // if our height is bigger, then cateto maggior is our height - their
+		if(difL > difH){  // here we need to have a value of negative, so to aim DOWN
+			return -tan(difH/difL); 
+		}else if(difH > difL){
+			return -tan(difL/difH);
+		}else{
+			return -tan(difH/difL);
+		}
+	}else if(this.position.z<target.position.z){
+		difH = target.position.z-this.position.z;  // if our height is smaller, then cateto maggior is their height - our
+		if(difL > difH){ // here we need to have a value of positive, so to aim DOWN
+			return tan(difH/difL);
+		}else if(difH > difL){
+			return tan(difL/difH);
+		}else{
+			return tan(difH/difL);
+		}
+	}else{
+		return 0 ; // here we return 0, because we are in front of eachoter, so we point straight1
+		
+	}
+	
+}
+
+bool object::reachZ(int Enemy){
+	
+	
+	if(this.position.z>radar(Enemy).position.z+1||this.position.z<radar(Enemy).position.z-1){
+		
+		
+		if(this.position.z<radar(Enemy).position.z){
+			jet(0.4);
+			wait(0.1);
+		}else{
+			jet(-0.3);
+			wait(0.1);
+		}
+		message("our z = " + this.position.z + "   enemy z = " + radar(Enemy).position.z);
+		//droneSeekTarget(radar(Enemy)); // we move closser, to the max range of the gun, 40 meters
+		return false;
+	}else{ return true;}
+	
+}
+
+void object::killNear(int Enemy){
+	
+	//object nearEnemy = radar(Enemy);
+	
+	while (radar(Enemy, 0, 360, 0, 40) != null)
+	{
+		
+		
+		//reachZ(radar(Enemy));we reach the same altitude of the target
+		if(reachZ(Enemy)){
+			inSight(Enemy);
+			
+			/*
+			if(direction(radar(Enemy).position) >1 ||direction(radar(Enemy).position)<-1 ){
+				turn ( direction(radar(Enemy).position) ); // we turn again, in case the enemy moved
+				aim(aimTargetY(radar(Enemy)),direction(radar(Enemy).position));
+				fire(0.1); // we spam fire, so if its walking, we track and spam
+			}else{
+				aim(aimTargetY(radar(Enemy)),direction(radar(Enemy).position));
+				fire(0.1);
+				//wait(0.75);
+			}*/
+		}
+		else{reachZ(Enemy);}
+		
+	}
+}
+
+void object::inSight(int Enemy){
+	if(direction(radar(Enemy).position) >1 ||direction(radar(Enemy).position)<-1 ){
+		if(direction(radar(Enemy).position)>0)// if it is left
+		{
+			motor(0.5,1);
+			wait(0.1);
+		}else if(direction(radar(Enemy).position)<0)//if it is right
+		{
+			motor(1,0.5);
+			wait(0.1);
+		}
+		//turn ( direction(radar(Enemy).position) ); // we turn again, in case the enemy move d
+	}else{
+		aim(aimTargetY(radar(Enemy)),direction(radar(Enemy).position));
+		fire(0.1);
+	}
+}
+
+extern void object::FighterJet2(){
+	int Enemy = AlienWasp;
+	while(radar(Enemy)!=null){
+		if(!isFloating()){
+			jet(1);
+			wait(0.2);
+		}
+		while(distance(this.position,radar(Enemy).position)>40){
+			killNear(Enemy);
+			if(isFloating()){
+				turn(direction(radar(Enemy).position));
+				motor(1,1);
+				wait(0.2);
+				reachZ(Enemy);
+			}else{
+				
+				turn(direction(radar(Enemy).position));
+				jet(1);
+				motor(1,1);
+				wait(0.2);
+				reachZ(Enemy);
+			}
+		}
+		while(distance(this.position,radar(Enemy).position)<36){
+			killNear(Enemy);
+			if(isFloating()){
+				turn(direction(radar(Enemy).position));
+				motor(-1,-1);
+				wait(0.2);
+				reachZ(Enemy);
+			}else{
+				
+				turn(direction(radar(Enemy).position));
+				jet(1);
+				motor(-1,-1);
+				wait(0.2);
+				reachZ(Enemy);
+			}
+		}
+		reachZ(Enemy);
+		
+		
+		
+		
+	}
+	
+	
+	
+}
+/*
+void object::droneSeekTarget(object target){
+	while(distance(this.position,target.position)>40){
+		
+		
+		killNear(target.category);
+		if(isFloating()){
+			
+			turn(direction(target.position));
+			motor(1,1);
+			reachZ(target);
+			
+			wait(0.2);
+		}else{
+			
+			
+			turn(direction(target.position));
+			motor(1,1);
+			reachZ(target);
+			jet(1);
+			wait(0.3);
+		}
+	}
+	
+	while(distance(this.position,target.position)<36){
+		killNear(target.category);
+		if(isFloating()){
+			
+			turn(direction(target.position));
+			motor(-1,-1);
+			reachZ(target);
+			
+			wait(0.2);
+		}else{
+			
+			
+			turn(direction(target.position));
+			motor(-1,-1);
+			reachZ(target);
+			jet(1);
+			wait(0.3);
+		}
+	}
+	
+}
+
+*/
+
+
+
+/*float object::aimTargetX(object target){
+	
+	float difL = distance(this.position,target.position); // using pitagora, we have cateto maggiore that is the distance
+	float difH; // we gonna use the angle difference as the cateto minore(or maggiore)
+	//diff of angle, if its negative, then enemy is on the right, if its positive, enemy is on the left BUT
+	// we aim on the right with POSITIVE and we aim on the left with NEGATIVE
+	if(direction(target.position)<0)// this mean enemy is on the RIGHT
+	{
+		difH = abs(direction(target.position);
+		if(difL > difH){  
+			return -tan(difH/difL); 
+		}else if(difH > difL){
+			return -tan(difL/difH);
+		}else{
+			return -tan(difH/difL);
+		}
+	}else if(direction(target.position)>0)//this mean enemy is on the LEFT
+	{
+		difH = target.position.z-this.position.z;  // if our height is smaller, then cateto maggior is their height - our
+		if(difL > difH){ // here we need to have a value of positive, so to aim DOWN
+			return tan(difH/difL);
+		}else if(difH > difL){
+			return tan(difL/difH);
+		}else{
+			return tan(difH/difL);
+		}
+	}else// this mean we are facing the enemy, its in front of us
+	{
+		return 0 ; // here we return 0, because we are in front of eachoter, so we point straight1
+		
+	}
+	
+}
+*/ // i dont need it, i can just us, the direction() function
+
+/*
+extern void object::FindTurnFireWinged()
+{
+	int Enemy = AlienWasp;
+	float directionToEnemy ;
+	while(radar(Enemy)!=null){
+		
+		
+		if(isFloating()){
+			object first = radar(Enemy);
+			directionToEnemy = direction(first.position);//we find the direction so that we  can turn (direction in degrees)
+			
+			turn ( directionToEnemy ); //we turn to the enemy)
+			
+			reachZ(first);
+			
+			killNear(Enemy);
+			
+			droneSeekTarget(first); // we move closser, to the max range of the gun, 40 meters
+			
+			message(direction(first.position));
+			if(direction(first.position) >1 ||direction(first.position)<-1 ){
+				directionToEnemy = direction(first.position);//we reset the direction of the enemy
+				turn ( directionToEnemy ); // we turn again, in case the enemy moved
+			}
+			aim(aimTargetY(first),direction(first.position));
+			fire(0.1);
+		}
+		else{
+			jet(1);
+			wait(0.3);
+		}
+		
+	}
+}
+*/
+ 
